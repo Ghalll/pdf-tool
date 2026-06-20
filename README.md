@@ -47,6 +47,7 @@ Menu interaktif akan muncul, tinggal ikutin instruksinya.
 **Ghaly Risyadi**
 - GitHub: @Ghalll
 - Email: vrenty882@hotmail.com
+- instagram : @ghalyrisydi
 
 ## Lisensi
 
