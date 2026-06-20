@@ -2,6 +2,12 @@
 
 CLI tool untuk convert dan compress file PDF, JPG, DOC/DOCX langsung dari terminal.
 
+## Kenapa pakai ini?
+
+Layanan online seperti iLovePDF, SmallPDF, dll mengharuskan kamu **upload dokumen ke server pihak ketiga** untuk diproses. Untuk dokumen sensitif (KTP, SIM, ijazah, akta, dll), ini risiko privasi yang nggak perlu — kamu nggak tahu data itu disimpan di mana, berapa lama, dan siapa yang bisa akses.
+
+PDFtool memproses semua file **100% di komputer kamu sendiri**. Tidak ada upload, tidak ada server, tidak ada koneksi internet yang dibutuhkan saat memproses file. Dokumen kamu tidak pernah meninggalkan perangkat kamu.
+
 ## Fitur
 
 - **Info file** — cek metadata PDF, JPG, DOCX
