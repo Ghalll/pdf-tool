@@ -349,7 +349,7 @@ def ask_compress_level() -> str | None:
 def welcome():
     clear()
     print("\n" + "=" * 40)
-    print("\t" + "  Beta Tools File")
+    print("\t" + "  PDF Tools File")
     print("=" * 40)
     print("1\t→\tInfo File")
     print("2\t→\tConvert File")
