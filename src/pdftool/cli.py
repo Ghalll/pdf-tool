@@ -8,7 +8,7 @@ from .compress import pdf_compres, jpg_compres, doc_compres
 def welcome():
     clear()
     print("\n" + "=" * 40)
-    print("\t" + "  PDF Tools File")
+    print("\t" + "  I hate PDF")
     print("=" * 40)
     print("1\t→\tInfo File")
     print("2\t→\tConvert File")
