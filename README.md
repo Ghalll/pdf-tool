@@ -13,7 +13,7 @@ PDFtool memproses semua file **100% di komputer kamu sendiri**. Tidak ada upload
 - **Info file** — cek metadata PDF, JPG, DOCX
 - **Convert file** — PDF ↔ JPG, PDF ↔ DOCX
 - **Compress file** — kompres PDF, JPG, DOCX dengan level low/medium/high
-- **Privacy file** — Membersihkan metadata PDF, JPG. Meenkripsi file PDF.
+- **Privacy file** — Membersihkan metadata PDF, JPG. Mengenkripsi file PDF.
 
 ## Requirement sebelum install
 
