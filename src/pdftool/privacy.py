@@ -47,7 +47,9 @@ def pdf_strip_metadata(path: Path):
                 return
 
             # Hapus docinfo (metadata tradisional PDF)
-            pdf.docinfo.clear()
+            # pikepdf docinfo tidak support .clear() — delete per key
+            for key in list(pdf.docinfo.keys()):
+                del pdf.docinfo[key]
 
             # Hapus XMP metadata (metadata modern PDF)
             with pdf.open_metadata() as xmp:
