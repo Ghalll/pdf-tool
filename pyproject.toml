@@ -1,18 +1,19 @@
 [project]
 name = "pdftool"
-version = "1.0.1"
+version = "1.1.1"
 description = "CLI tool untuk convert dan compress file PDF, JPG, DOC/DOCX"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "pypdf",
     "pdf2image",
     "Pillow",
     "pikepdf",
     "python-docx",
+    "pdf2docx",
 ]
 
 [project.scripts]
-pdftool = "pdftool.main:main"
+pdftool = "pdftool.cli:main"
 
 [build-system]
 requires = ["setuptools>=61.0"]
