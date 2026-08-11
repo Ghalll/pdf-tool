@@ -13,6 +13,7 @@ def welcome():
     print("1\t→\tInfo File")
     print("2\t→\tConvert File")
     print("3\t→\tCompress File")
+    print("4\t→\tPrivacy")
     print("\nQ → Quit")
 
 def flow_info_file():
@@ -109,6 +110,37 @@ def flow_compres_file():
         clear()
         func(path)
         input("\nEnter to continue")
+        
+def flow_privacy():
+    while True:
+        clear()
+        print("\nPrivacy — pilih aksi\n")
+        print("1\tStrip Metadata  PDF")
+        print("2\tStrip EXIF      JPG")
+        print("3\tEnkripsi PDF    (password protect)")
+        print("\n0\tBack")
+ 
+        choice = input("\nInput [1-3/0] : ").strip()
+ 
+        if choice == "0":
+            return
+ 
+        config = {
+            "1": ("PDF", [".pdf"],          pdf_strip_metadata),
+            "2": ("JPG", [".jpg", ".jpeg"], jpg_strip_exif),
+            "3": ("PDF", [".pdf"],          pdf_encrypt),
+        }
+ 
+        if choice not in config:
+            print("\n[!] Pilihan tidak valid.")
+            input("\nEnter to continue")
+            continue
+ 
+        label, exts, func = config[choice]
+        path = input_file(label, exts)
+        clear()
+        func(path)
+        input("\nEnter to continue")
 
 def main():
     while True:
@@ -119,6 +151,7 @@ def main():
         elif opsi == "1": flow_info_file()
         elif opsi == "2": flow_convert_file()
         elif opsi == "3": flow_compres_file()
+        elif opsi == "4": flow_privacy()
         else:
             print("\n[!] Option not valid.")
             input("\nEnter to continue")
