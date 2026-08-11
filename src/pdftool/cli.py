@@ -132,7 +132,7 @@ def flow_privacy():
         }
  
         if choice not in config:
-            print("\n[!] Pilihan tidak valid.")
+            print("\n[!] Option not valid.")
             input("\nEnter to continue")
             continue
  
