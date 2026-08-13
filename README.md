@@ -46,7 +46,7 @@ Menu interaktif akan muncul, tinggal ikutin instruksinya.
 ## Developer
 
 **Ghaly Risyadi**
-- GitHub: @Ghalll
+- GitHub: @GhalyRisyadi
 - Email: vrenty882@hotmail.com
 - Instagram : @ghalyrisydi
 
