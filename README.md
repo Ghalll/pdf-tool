@@ -30,12 +30,12 @@ Selain Python, dua dependency sistem ini wajib ada:
 ## Instalasi
 
 ```bash
-pipx install git+https://github.com/Ghalll/pdf-tool.git
+pipx install git+https://github.com/GhalyRisyadi/pdf-tool.git
 ```
 
 atau pakai pip biasa:
 ```bash
-pip install git+https://github.com/Ghalll/pdf-tool.git
+pip install git+https://github.com/GhalyRisyadi/pdf-tool.git
 ```
 
 ## Cara pakai
