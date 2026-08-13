@@ -1,5 +1,8 @@
 # PDFtool
 
+![Python](https://img.shields.io/badge/Python-3.x-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+
 CLI tool untuk convert dan compress file PDF, JPG, DOC/DOCX langsung dari terminal.
 
 ## Kenapa pakai ini?
