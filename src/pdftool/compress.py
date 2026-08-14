@@ -114,7 +114,6 @@ def doc_compres(path: Path):
     if level is None:
         return
 
-    # docx adalah zip — compress gambar di dalamnya
     output      = path.parent / f"{path.stem}_compressed.docx"
     original_kb = path.stat().st_size / 1024
     quality     = _IMG_QUALITY[level]
@@ -130,7 +129,7 @@ def doc_compres(path: Path):
                     data     = zin.read(item)
                     is_image = (
                         item.startswith("word/media/")
-                        and item.lower().endswith((".jpg", ".jpeg", ".png"))
+                        and item.lower().endswith((".jpg", ".jpeg"))
                     )
                     if is_image:
                         try:
@@ -139,7 +138,7 @@ def doc_compres(path: Path):
                             img.save(buf, "JPEG", quality=quality, optimize=True)
                             data = buf.getvalue()
                         except Exception:
-                            pass  # gagal proses gambar ini, pakai data asli
+                            pass  
                     zout.writestr(item, data)
 
         _print_result(output, original_kb)

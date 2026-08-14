@@ -152,7 +152,7 @@ def flow_privacy():
 def main():
     while True:
         welcome()
-        opsi = input("\nInput [1-3/Q] : ").strip().upper()
+        opsi = input("\nInput [1-4/Q] : ").strip().upper()
 
         if   opsi == "Q": print("\nQuit"); break
         elif opsi == "1": flow_info_file()
