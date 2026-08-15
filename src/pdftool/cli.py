@@ -57,7 +57,6 @@ def flow_info_file():
 
         input("\nEnter to continue")
 
-
 def flow_convert_file():
     while True:
         clear()
@@ -89,8 +88,8 @@ def flow_convert_file():
         path = input_file(label, exts)
         clear()
         func(path)
-        input("\nEnter to continue")
 
+        input("\nEnter to continue")
 
 def flow_compres_file():
     while True:
@@ -130,7 +129,6 @@ def flow_compres_file():
             except Exception as e:
                 print(f"\n[ERROR] {e}")
 
-        func(path)
         input("\nEnter to continue")
 
 def flow_merge_and_split():
@@ -160,7 +158,7 @@ def flow_merge_and_split():
             input("\nEnter to continue")
             continue
         
-        label, exts, is_merge, func = config[choice]
+        label, exts, is_merge, func = config[choice]    
 
         if is_merge:
             paths = input_files(label, exts)
@@ -170,10 +168,7 @@ def flow_merge_and_split():
             path = input_file(label, exts)
             clear()
             func(path)
-
-        path = input_file(label, exts)
-        clear()
-        func(path)
+            
         input("\nEnter to continue")    
 
 
@@ -184,7 +179,7 @@ def flow_privacy():
         print("1\tStrip Metadata  PDF")
         print("2\tStrip EXIF      JPG")
         print("3\tEnkripsi PDF    (password protect)")
-        print("4\tSanitize PDF (strip JS/actions/embedded files)")
+        print("4\tSanitize PDF    (strip JS/actions/embedded files)")
         print("\n0\tBack")
 
         choice = input("\nInput [1-4/0] : ").strip()

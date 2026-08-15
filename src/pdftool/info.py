@@ -65,4 +65,4 @@ def doc_info(path: Path, origin: Path | None = None):
         if meta.author: print(f"Author     : {meta.author}")
 
     except Exception as e:
-        print(f"\n[ERROR] Gagal baca indo DOC: {e}")
+        print(f"\n[ERROR] Gagal baca info DOC: {e}")

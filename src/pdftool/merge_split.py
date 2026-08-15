@@ -2,8 +2,6 @@ import copy
 from pathlib import Path
 
 
-# ─── PDF Merge ───────────────────────────────────────────────────────────────
-
 def merge_pdf(paths: list[Path], output: Path = None):
     from pypdf import PdfWriter
 
@@ -29,10 +27,8 @@ def merge_pdf(paths: list[Path], output: Path = None):
         print(f"\n[ERROR] Gagal merge: {e}")
 
     finally:
-        writer.close()
-
-
-# ─── PDF Split ───────────────────────────────────────────────────────────────
+        if hasattr(writer, "close"):
+            writer.close()
 
 def _parse_ranges(raw: str, total_pages: int):
     """'1-3,5,7-9' -> [(1,3),(5,5),(7,9)]. '' / 'all' -> tiap halaman sendiri."""
@@ -57,7 +53,6 @@ def _parse_ranges(raw: str, total_pages: int):
         ranges.append((a, b))
 
     return ranges or None
-
 
 def split_pdf(path: Path, output_dir: Path = None):
     from pypdf import PdfReader, PdfWriter
@@ -102,9 +97,6 @@ def split_pdf(path: Path, output_dir: Path = None):
     except Exception as e:
         print(f"\n[ERROR] Gagal split: {e}")
 
-
-# ─── DOCX Merge ──────────────────────────────────────────────────────────────
-
 def merge_docx(paths: list[Path], output: Path = None):
     from docx import Document
     from docxcompose.composer import Composer
@@ -133,9 +125,6 @@ def merge_docx(paths: list[Path], output: Path = None):
 
     except Exception as e:
         print(f"\n[ERROR] Gagal merge: {e}")
-
-
-# ─── DOCX Split ──────────────────────────────────────────────────────────────
 
 def split_docx(path: Path, output_dir: Path = None):
     from docx import Document
