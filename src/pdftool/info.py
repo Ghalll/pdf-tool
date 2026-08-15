@@ -46,11 +46,12 @@ def jpg_info(path: Path):
         print(f"\n [ERROR] Gagal baca indo JPG: {e}")
 
 
-def doc_info(path: Path):
+def doc_info(path: Path, origin: Path | None = None):
     from docx import Document
 
-    try:
+    origin = origin or path
 
+    try:
         doc    = Document(str(path))
         meta   = doc.core_properties
         size   = path.stat().st_size / 1024

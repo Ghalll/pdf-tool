@@ -1,10 +1,12 @@
 from pathlib import Path
 
-from .utils import clear, input_file
+from .utils import clear, input_file, input_files, ensure_docx
 from .info import pdf_info, jpg_info, doc_info
 from .convert import pdf_to_jpg, pdf_to_doc, jpg_to_pdf, doc_to_pdf
 from .compress import pdf_compres, jpg_compres, doc_compres
+from .merge_split import merge_pdf, split_pdf, merge_docx, split_docx
 from .privacy import pdf_strip_metadata, jpg_strip_exif, pdf_encrypt
+from .sanitize import pdf_sanitize
 
 
 def welcome():
@@ -15,9 +17,9 @@ def welcome():
     print("1\t→\tInfo File")
     print("2\t→\tConvert File")
     print("3\t→\tCompress File")
-    print("4\t→\tPrivacy")
+    print("4\t→\tMerge / Split file")
+    print("5\t→\tPrivacy")
     print("\nQ → Quit")
-
 
 def flow_info_file():
     while True:
@@ -46,7 +48,12 @@ def flow_info_file():
 
         if   choice == "1": pdf_info(path)
         elif choice == "2": jpg_info(path)
-        elif choice == "3": doc_info(path)
+        elif choice == "3":
+            try:
+                with ensure_docx(path) as docx_path:
+                    doc_info(docx_path, origin=path)
+            except Exception as e:
+                print(f"\n[ERROR] {e}")
 
         input("\nEnter to continue")
 
@@ -113,8 +120,61 @@ def flow_compres_file():
         label, exts, func = config[choice]
         path = input_file(label, exts)
         clear()
+
+        if choice == "1": pdf_compres(path)
+        elif choice == "2": jpg_compres(path)
+        elif choice == "3":
+            try:
+                with ensure_docx(path) as docx_path:
+                    doc_compres(docx_path, origin=path)
+            except Exception as e:
+                print(f"\n[ERROR] {e}")
+
         func(path)
         input("\nEnter to continue")
+
+def flow_merge_and_split():
+    while True:
+        clear()
+        print("\n")
+        print("1\tMerge PDF")
+        print("2\tSplit PDF")
+        print("3\tMerge DOCX")
+        print("4\tSplit DOCX")
+        print("\n0\tBack")
+
+        choice = input("\nInput [1-4/0] : ").strip()
+
+        if choice == "0":
+            return
+
+        config = {
+            "1": ("PDF",  [".pdf"],          True,  merge_pdf),
+            "2": ("PDF",  [".pdf"],          False, split_pdf),
+            "3": ("DOCX", [".docx"],         True,  merge_docx),
+            "4": ("DOCX", [".docx"],         False, split_docx),
+        }
+
+        if choice not in config:
+            print("\n[!] Pilihan tidak valid.")
+            input("\nEnter to continue")
+            continue
+        
+        label, exts, is_merge, func = config[choice]
+
+        if is_merge:
+            paths = input_files(label, exts)
+            clear()
+            func(paths)
+        else:
+            path = input_file(label, exts)
+            clear()
+            func(path)
+
+        path = input_file(label, exts)
+        clear()
+        func(path)
+        input("\nEnter to continue")    
 
 
 def flow_privacy():
@@ -124,9 +184,10 @@ def flow_privacy():
         print("1\tStrip Metadata  PDF")
         print("2\tStrip EXIF      JPG")
         print("3\tEnkripsi PDF    (password protect)")
+        print("4\tSanitize PDF (strip JS/actions/embedded files)")
         print("\n0\tBack")
 
-        choice = input("\nInput [1-3/0] : ").strip()
+        choice = input("\nInput [1-4/0] : ").strip()
 
         if choice == "0":
             return
@@ -135,6 +196,7 @@ def flow_privacy():
             "1": ("PDF", [".pdf"],          pdf_strip_metadata),
             "2": ("JPG", [".jpg", ".jpeg"], jpg_strip_exif),
             "3": ("PDF", [".pdf"],          pdf_encrypt),
+            "4": ("PDF", [".pdf"],          pdf_sanitize),
         }
 
         if choice not in config:
@@ -152,13 +214,14 @@ def flow_privacy():
 def main():
     while True:
         welcome()
-        opsi = input("\nInput [1-4/Q] : ").strip().upper()
+        opsi = input("\nInput [1-5/Q] : ").strip().upper()
 
         if   opsi == "Q": print("\nQuit"); break
         elif opsi == "1": flow_info_file()
         elif opsi == "2": flow_convert_file()
         elif opsi == "3": flow_compres_file()
-        elif opsi == "4": flow_privacy()
+        elif opsi == "4": flow_merge_and_split()
+        elif opsi == "5": flow_privacy()
         else:
             print("\n[!] Pilihan tidak valid.")
             input("\nEnter to continue")

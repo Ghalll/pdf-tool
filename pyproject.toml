@@ -1,6 +1,7 @@
 [project]
 name = "pdftool"
-version = "1.0.1"
+version = "1.1.0"
+7039ba2 (Add merge/split and PDF sanitization features and fix bug)
 description = "CLI tool untuk convert dan compress file PDF, JPG, DOC/DOCX"
 requires-python = ">=3.10"
 dependencies = [
@@ -10,6 +11,7 @@ dependencies = [
     "pikepdf",
     "python-docx",
     "pdf2docx",
+    "docxcompose",
 ]
 
 [project.scripts]

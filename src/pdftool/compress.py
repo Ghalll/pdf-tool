@@ -109,16 +109,17 @@ def jpg_compres(path: Path):
         print(f"\n[ERROR] Failed to compress: {e}")
 
 
-def doc_compres(path: Path):
+def doc_compres(path: Path, origin: Path | None = None): 
     level = ask_compress_level()
     if level is None:
         return
 
+    origin      = origin or path
     output      = path.parent / f"{path.stem}_compressed.docx"
     original_kb = path.stat().st_size / 1024
     quality     = _IMG_QUALITY[level]
 
-    print(f"\n[*] Compressing {path.name} — level: {level}")
+    print(f"\n[*] Compressing {origin.name} — level: {level}")
 
     try:
         from PIL import Image
