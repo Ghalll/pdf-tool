@@ -1,6 +1,7 @@
 from pathlib import Path
+from .utils import has_javascript, get_attachments, count_images, get_fonts
 
-
+"""
 def pdf_info(path: Path):
     from pypdf import PdfReader
 
@@ -19,8 +20,7 @@ def pdf_info(path: Path):
 
     except Exception as e:
         print(f"\n[ERROR] Gagal baca info PDF: {e}")
-
-
+"""
 
 def jpg_info(path: Path):
     from PIL import Image
@@ -45,7 +45,6 @@ def jpg_info(path: Path):
     except Exception as e:
         print(f"\n [ERROR] Gagal baca indo JPG: {e}")
 
-
 def doc_info(path: Path, origin: Path | None = None):
     from docx import Document
 
@@ -66,3 +65,45 @@ def doc_info(path: Path, origin: Path | None = None):
 
     except Exception as e:
         print(f"\n[ERROR] Gagal baca info DOC: {e}")
+
+def pdf_analysis(path: Path):
+    from pypdf import PdfReader
+
+    try:
+        reader  = PdfReader(str(path))
+        meta = reader.metadata
+        size_kb = path.stat().st_size / 1024
+        size_mb = size_kb / 1024
+        
+        javascript = has_javascript(reader)
+        attachments = get_attachments(reader)
+        fonts = get_fonts(reader)
+        images = count_images(reader)
+
+        print(f"File        : {path.name}")
+        print(f"Size        : {size_kb:.1f} KB ({size_mb:.2f}) MB")
+        print(f"Pages       : {len(reader.pages)}")
+        print(f"Encrypted   : {'Yes' if reader.is_encrypted else 'No'}")
+        print(f"JavaScript  : {'Yes' if javascript else 'No'}")
+        print(f"Attachments : {len(attachments)}")
+        print(f"Images      : {images}")
+        print(f"Fonts       : {len(fonts)}")
+
+        print("\nMetadata:")
+        if meta:
+            print(f"  Title     : {meta.title or '-'}")
+            print(f"  Author    : {meta.author or '-'}")
+            print(f"  Subject   : {meta.subject or '-'}")
+            print(f"  Creator   : {meta.creator or '-'}")
+            print(f"  Producer  : {meta.producer or '-'}")
+        else:
+            print("  None")
+
+        if fonts:
+            print("\nFonts:")
+
+            for font in sorted(fonts):
+                print(f"  - {font}")
+
+    except Exception as e:
+        print(f"\n[ERROR] Gagal analys file PDF: {e}")

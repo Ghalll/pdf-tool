@@ -1,8 +1,8 @@
 from pathlib import Path
 
 from .utils import clear, input_file, input_files, ensure_docx
-from .info import pdf_info, jpg_info, doc_info
-from .convert import pdf_to_jpg, pdf_to_doc, jpg_to_pdf, doc_to_pdf
+from .info import pdf_analysis, jpg_info, doc_info
+from .convert import pdf_to_jpg, pdf_to_doc, pdf_to_text, jpg_to_pdf, doc_to_pdf
 from .compress import pdf_compres, jpg_compres, doc_compres
 from .merge_split import merge_pdf, split_pdf, merge_docx, split_docx
 from .privacy import pdf_strip_metadata, jpg_strip_exif, pdf_encrypt
@@ -46,7 +46,7 @@ def flow_info_file():
         path = input_file(label_map[choice], ext_map[choice])
         clear()
 
-        if   choice == "1": pdf_info(path)
+        if   choice == "1": pdf_analysis(path)
         elif choice == "2": jpg_info(path)
         elif choice == "3":
             try:
@@ -63,11 +63,12 @@ def flow_convert_file():
         print("\nConvert ke format apa?\n")
         print("1\tPDF  → JPG")
         print("2\tPDF  → DOCX")
-        print("3\tJPG  → PDF")
-        print("4\tDOCX → PDF")
+        print("3\tPDF  → Text")
+        print("4\tJPG  → PDF")
+        print("5\tDOCX → PDF")
         print("\n0\tBack")
 
-        choice = input("\nInput [1-4/0] : ").strip()
+        choice = input("\nInput [1-5/0] : ").strip()
 
         if choice == "0":
             return
@@ -75,8 +76,9 @@ def flow_convert_file():
         config = {
             "1": ("PDF",      [".pdf"],          pdf_to_jpg),
             "2": ("PDF",      [".pdf"],          pdf_to_doc),
-            "3": ("JPG",      [".jpg", ".jpeg"], jpg_to_pdf),
-            "4": ("DOC/DOCX", [".doc", ".docx"], doc_to_pdf),
+            "3": ("PDF",      [".pdf"],          pdf_to_text),
+            "4": ("JPG",      [".jpg", ".jpeg"], jpg_to_pdf),
+            "5": ("DOC/DOCX", [".doc", ".docx"], doc_to_pdf),
         }
 
         if choice not in config:

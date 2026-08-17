@@ -4,6 +4,7 @@ import tempfile
 from contextlib import contextmanager
 from pathlib import Path
 
+
 def clear():
     os.system("cls" if os.name == "nt" else "clear")
 
@@ -18,7 +19,6 @@ def input_file(label: str, extensions: list[str]) -> Path:
             print(f"[!] File harus berekstensi {ext_display}.")
         else:
             return p
-
 
 def run_libreoffice_convert (path: Path, to: str, outdir: Path, timeout: int=120):
      with tempfile.TemporaryDirectory(prefix="pdftool_lo_profile_") as profile_dir:
@@ -60,7 +60,6 @@ def ensure_docx(path: Path):
         print("[✓] Konversi selesai.\n")
         yield converted
 
-
 def input_files(label: str, extensions: list[str], min_files: int = 2) -> list[Path]:
     ext_display = "/".join(e.upper() for e in extensions)
     paths: list[Path] = []
@@ -87,3 +86,62 @@ def input_files(label: str, extensions: list[str], min_files: int = 2) -> list[P
         else:
             paths.append(p)
             print(f"    [+] {len(paths)}. {p.name}")
+
+def has_javascript(reader):
+    try:
+        js = reader.javascripts
+        return bool(js)
+    except Exception:
+        return False
+
+def get_attachments(reader):
+    try:
+        return reader.attachments
+    except Exception:
+        return {}
+
+def count_images(reader):
+    count = 0
+
+    for page in reader.pages:
+        resources = page.get("/Resources")
+
+        if not resources:
+            continue
+
+        xobjects = resources.get("/XObject")
+
+        if not xobjects:
+            continue
+
+        for obj in xobjects.values():
+            obj = obj.get_object()
+
+            if obj.get("/Subtype") == "/Image":
+                count += 1
+
+    return count
+
+def get_fonts(reader):
+    fonts = set()
+
+    for page in reader.pages:
+        resources = page.get("/Resources")
+
+        if not resources:
+            continue
+
+        font_dict = resources.get("/Font")
+
+        if not font_dict:
+            continue
+
+        for font in font_dict.values():
+            font = font.get_object()
+
+            base_font = font.get("/BaseFont")
+
+            if base_font:
+                fonts.add(str(base_font))
+
+    return fonts

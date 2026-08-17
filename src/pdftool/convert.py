@@ -50,6 +50,40 @@ def pdf_to_doc(path: Path, output_path: Path = None):
     except Exception as e:
         print(f"\n[ERROR] Failed to convert: {e}")
 
+def pdf_to_text(path: Path, output_path: Path = None):
+    from pypdf import PdfReader
+
+    if output_path is None:
+        output_path = path.parent / f"{path.stem}.txt"
+
+    print(f"\n[*] Convert PDF → Text")
+
+    try:
+        reader = PdfReader(str(path))
+        total = len(reader.pages)
+ 
+        parts = []
+        empty_pages = 0
+        for page in reader.pages:
+            text = page.extract_text() or ""
+            if not text.strip():
+                empty_pages += 1
+            parts.append(text)
+
+        full_text = "\n\n".join(parts)
+        output_path.write_text(full_text, encoding="utf-8")
+ 
+        size_kb = output_path.stat().st_size / 1024
+        print(f"\n[✓] Converted: {output_path.name}  ({size_kb:.1f} KB)")
+        print(f"    Saved in : {output_path.resolve()}")
+
+        if empty_pages:
+            print(f"\n    [!] {empty_pages}/{total} halaman nggak ada teks yang bisa diekstrak.")
+            print("        Kemungkinan hasil scan/gambar — butuh OCR, bukan text extraction biasa.")
+
+    except Exception as e:
+        print(f"\n[ERROR] Failed to convert: {e}")
+
 
 def jpg_to_pdf(path: Path, output_path: Path = None):
     from PIL import Image
