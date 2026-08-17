@@ -89,8 +89,11 @@ def input_files(label: str, extensions: list[str], min_files: int = 2) -> list[P
 
 def has_javascript(reader):
     try:
-        js = reader.javascripts
-        return bool(js)
+        root = reader.trailer.get("/Root", {})
+        names = root.get("/Names", {})
+        if isinstance(names, dict) and "/JavaScript" in names:
+            return True
+        return False
     except Exception:
         return False
 
@@ -101,26 +104,11 @@ def get_attachments(reader):
         return {}
 
 def count_images(reader):
-    count = 0
-
-    for page in reader.pages:
-        resources = page.get("/Resources")
-
-        if not resources:
-            continue
-
-        xobjects = resources.get("/XObject")
-
-        if not xobjects:
-            continue
-
-        for obj in xobjects.values():
-            obj = obj.get_object()
-
-            if obj.get("/Subtype") == "/Image":
-                count += 1
-
-    return count
+    try:
+        # Mengakumulasi panjang array image per halaman
+        return sum(len(page.images) for page in reader.pages)
+    except Exception:
+        return 0
 
 def get_fonts(reader):
     fonts = set()

@@ -81,7 +81,7 @@ def pdf_analysis(path: Path):
         images = count_images(reader)
 
         print(f"File        : {path.name}")
-        print(f"Size        : {size_kb:.1f} KB ({size_mb:.2f}) MB")
+        print(f"Size        : {size_kb:.1f} KB ({size_mb:.2f} MB)")
         print(f"Pages       : {len(reader.pages)}")
         print(f"Encrypted   : {'Yes' if reader.is_encrypted else 'No'}")
         print(f"JavaScript  : {'Yes' if javascript else 'No'}")
