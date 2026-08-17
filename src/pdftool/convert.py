@@ -80,7 +80,7 @@ def doc_to_pdf(path: Path, output_dir: Path = None):
     print("    (bisa makan waktu lebih lama untuk file besar/kompleks, tunggu sebentar)")
 
     try:
-        result = run_libreoffice_convert(path, "docx", output_dir)
+        result = run_libreoffice_convert(path, "pdf", output_dir)
 
         output_path = output_dir / f"{path.stem}.pdf"
 

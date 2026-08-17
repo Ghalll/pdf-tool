@@ -42,7 +42,7 @@ def ensure_docx(path: Path):
     with tempfile.TemporaryDirectory(prefix="pdftool_") as tmp:
         tmp_dir = Path(tmp)
         try:
-            result = subprocess.run(path, "docx", tmp_dir)
+            result = run_libreoffice_convert(path, "docx", tmp_dir)
         except FileNotFoundError:
             raise RuntimeError(
                 "LibreOffice belum terinstall.\n"
