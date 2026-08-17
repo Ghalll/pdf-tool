@@ -1,5 +1,6 @@
 import subprocess
 from pathlib import Path
+from .utils import run_libreoffice_convert
 
 
 def pdf_to_jpg(path: Path, dpi: int = 150, quality: int = 85,
@@ -76,13 +77,10 @@ def doc_to_pdf(path: Path, output_dir: Path = None):
         output_dir = path.parent
 
     print(f"\n[*] Convert DOCX → PDF")
+    print("    (bisa makan waktu lebih lama untuk file besar/kompleks, tunggu sebentar)")
 
     try:
-        result = subprocess.run(
-            ["libreoffice", "--headless", "--convert-to", "pdf",
-             "--outdir", str(output_dir), str(path)],
-            capture_output=True, text=True, timeout=60
-        )
+        result = run_libreoffice_convert(path, "docx", output_dir)
 
         output_path = output_dir / f"{path.stem}.pdf"
 

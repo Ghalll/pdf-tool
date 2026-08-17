@@ -20,29 +20,29 @@ def input_file(label: str, extensions: list[str]) -> Path:
             return p
 
 
+def run_libreoffice_convert (path: Path, to: str, outdir: Path, timeout: int=120):
+     with tempfile.TemporaryDirectory(prefix="pdftool_lo_profile_") as profile_dir:
+        return subprocess.run(
+            ["libreoffice", "--headless",
+             f"-env:UserInstallation=file://{profile_dir}",
+             "--convert-to", to,
+             "--outdir", str(outdir), str(path)],
+            capture_output=True, text=True, timeout=timeout,
+        )
+
 @contextmanager
-def ensure_docx(path: Path):
-    """
-    doc_info/doc_compres cuma bisa baca .docx (zip/XML), bukan .doc lawas
-    (OLE binary). Kalau input-nya .docx, langsung dipakai apa adanya.
-    Kalau .doc, di-convert dulu ke .docx lewat LibreOffice ke temp dir,
-    di-yield path hasil konversinya, terus temp dir dihapus otomatis
-    begitu selesai dipakai — nggak ninggalin file sisa di komputer user.
-    """
+def ensure_docx(path: Path):  
     if path.suffix.lower() == ".docx":
         yield path
         return
 
     print(f"\n[*] '{path.name}' masih format .doc lama — mengonversi ke .docx dulu (via LibreOffice)...")
+    print("     (bisa makan waktu lebih lama untuk file besar/kompleks, tunggu sebentar)")
 
     with tempfile.TemporaryDirectory(prefix="pdftool_") as tmp:
         tmp_dir = Path(tmp)
         try:
-            result = subprocess.run(
-                ["libreoffice", "--headless", "--convert-to", "docx",
-                 "--outdir", str(tmp_dir), str(path)],
-                capture_output=True, text=True, timeout=60
-            )
+            result = subprocess.run(path, "docx", tmp_dir)
         except FileNotFoundError:
             raise RuntimeError(
                 "LibreOffice belum terinstall.\n"
@@ -62,7 +62,6 @@ def ensure_docx(path: Path):
 
 
 def input_files(label: str, extensions: list[str], min_files: int = 2) -> list[Path]:
-    """Input banyak file berurutan (buat merge). Kosongkan input buat selesai."""
     ext_display = "/".join(e.upper() for e in extensions)
     paths: list[Path] = []
 
