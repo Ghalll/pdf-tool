@@ -202,6 +202,9 @@ def flow_content_extraction():
 
         choice = input("\nInput [1-4/0] : ").strip()
 
+        if choice == "0":
+            return
+
         config = {
             "1": ("PDF",  [".pdf"],     extract_images_from_pdf),
             "2": ("PDF",  [".pdf"],     extract_tables_from_pdf),
