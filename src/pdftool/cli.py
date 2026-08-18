@@ -1,12 +1,14 @@
 from pathlib import Path
 
 from .utils import clear, input_file, input_files, ensure_docx
-from .info import pdf_analysis, jpg_info, doc_info
-from .convert import pdf_to_jpg, pdf_to_doc, pdf_to_text, jpg_to_pdf, doc_to_pdf
+from .info import pdf_analysis, jpg_analysis, doc_info
+from .convert import pdf_to_jpg, pdf_to_doc, pdf_to_text, pdf_to_markdown, pdf_to_html, jpg_to_pdf, jpg_to_png, png_to_jpg, doc_to_pdf
 from .compress import pdf_compres, jpg_compres, doc_compres
 from .merge_split import merge_pdf, split_pdf, merge_docx, split_docx
-from .privacy import pdf_strip_metadata, jpg_strip_exif, pdf_encrypt
+from .privacy import pdf_strip_metadata, jpg_strip_exif, pdf_encrypt, pdf_unlock, pdf_redact
 from .sanitize import pdf_sanitize
+from .repair import pdf_repair
+from .extraction import extract_images_from_pdf, extract_links_from_pdf, extract_tables_from_pdf
 
 
 def welcome():
@@ -16,15 +18,17 @@ def welcome():
     print("=" * 40)
     print("1\t→\tInfo File")
     print("2\t→\tConvert File")
-    print("3\t→\tCompress File")
-    print("4\t→\tMerge / Split file")
-    print("5\t→\tPrivacy")
+    print("3\t→\tOptimize File")
+    print("4\t→\tPages Organizer")
+    print("5\t→\tContent Extraction")
+    print("6\t→\tPrivacy")
     print("\nQ → Quit")
 
 def flow_info_file():
     while True:
         clear()
-        print("\nPilih tipe file\n")
+        print("\nSelect a file type\n")
+        print("─" * 36)
         print("1\tPDF")
         print("2\tJPG")
         print("3\tDOC/DOCX")
@@ -39,7 +43,7 @@ def flow_info_file():
         label_map = {"1": "PDF", "2": "JPG", "3": "DOC/DOCX"}
 
         if choice not in ext_map:
-            print("\n[!] Pilihan tidak valid.")
+            print("\n[!] Invalid selection.")
             input("\nEnter to continue")
             continue
 
@@ -47,7 +51,7 @@ def flow_info_file():
         clear()
 
         if   choice == "1": pdf_analysis(path)
-        elif choice == "2": jpg_info(path)
+        elif choice == "2": jpg_analysis(path)
         elif choice == "3":
             try:
                 with ensure_docx(path) as docx_path:
@@ -60,15 +64,20 @@ def flow_info_file():
 def flow_convert_file():
     while True:
         clear()
-        print("\nConvert ke format apa?\n")
+        print("\nConvert to what format?\n")
+        print("─" * 36)
         print("1\tPDF  → JPG")
         print("2\tPDF  → DOCX")
         print("3\tPDF  → Text")
-        print("4\tJPG  → PDF")
-        print("5\tDOCX → PDF")
+        print("4\tPDF  → Markdown")
+        print("5\tPDF  → HTML")
+        print("6\tJPG  → PDF")
+        print("7\tJPG  → PNG")
+        print("8\tPNG  → JPG")
+        print("9\tDOCX → PDF")
         print("\n0\tBack")
 
-        choice = input("\nInput [1-5/0] : ").strip()
+        choice = input("\nInput [1-9/0] : ").strip()
 
         if choice == "0":
             return
@@ -77,12 +86,16 @@ def flow_convert_file():
             "1": ("PDF",      [".pdf"],          pdf_to_jpg),
             "2": ("PDF",      [".pdf"],          pdf_to_doc),
             "3": ("PDF",      [".pdf"],          pdf_to_text),
-            "4": ("JPG",      [".jpg", ".jpeg"], jpg_to_pdf),
-            "5": ("DOC/DOCX", [".doc", ".docx"], doc_to_pdf),
+            "4": ("PDF",      [".pdf"],          pdf_to_markdown),
+            "5": ("PDF",      [".pdf"],          pdf_to_html),
+            "6": ("JPG",      [".jpg", ".jpeg"], jpg_to_pdf),
+            "7": ("JPG",      [".jpg", ".jpeg"], jpg_to_png),
+            "8": ("PNG",      [".png"],          png_to_jpg),
+            "9": ("DOC/DOCX", [".doc", ".docx"], doc_to_pdf),
         }
 
         if choice not in config:
-            print("\n[!] Pilihan tidak valid.")
+            print("\n[!] Invalid selection.")
             input("\nEnter to continue")
             continue
 
@@ -93,16 +106,18 @@ def flow_convert_file():
 
         input("\nEnter to continue")
 
-def flow_compres_file():
+def flow_optimize_file():
     while True:
         clear()
-        print("\nCompress file apa?\n")
-        print("1\tPDF")
-        print("2\tJPG")
-        print("3\tDOC/DOCX")
+        print("\nOptimize file\n")
+        print("─" * 36)
+        print("1\tCompress PDF")
+        print("2\tCompress JPG")
+        print("3\tCompress DOC/DOCX")
+        print("4\tRepair PDF")
         print("\n0\tBack")
 
-        choice = input("\nInput [1-3/0] : ").strip()
+        choice = input("\nInput [1-4/0] : ").strip()
 
         if choice == "0":
             return
@@ -111,10 +126,11 @@ def flow_compres_file():
             "1": ("PDF",      [".pdf"],          pdf_compres),
             "2": ("JPG",      [".jpg", ".jpeg"], jpg_compres),
             "3": ("DOC/DOCX", [".doc", ".docx"], doc_compres),
+            "4": ("PDF",      [".pdf"],          pdf_repair),
         }
 
         if choice not in config:
-            print("\n[!] Pilihan tidak valid.")
+            print("\n[!] Invalid selection.")
             input("\nEnter to continue")
             continue
 
@@ -122,21 +138,21 @@ def flow_compres_file():
         path = input_file(label, exts)
         clear()
 
-        if choice == "1": pdf_compres(path)
-        elif choice == "2": jpg_compres(path)
-        elif choice == "3":
+        if choice == "3":
             try:
                 with ensure_docx(path) as docx_path:
-                    doc_compres(docx_path, origin=path)
+                    func(docx_path, origin=path)
             except Exception as e:
                 print(f"\n[ERROR] {e}")
-
+        else:
+            func(path)
         input("\nEnter to continue")
 
-def flow_merge_and_split():
+def flow_organizer_pages():
     while True:
         clear()
-        print("\n")
+        print("\nPages Organizer\n")
+        print("─" * 36)
         print("1\tMerge PDF")
         print("2\tSplit PDF")
         print("3\tMerge DOCX")
@@ -156,7 +172,7 @@ def flow_merge_and_split():
         }
 
         if choice not in config:
-            print("\n[!] Pilihan tidak valid.")
+            print("\n[!] Invalid selection.")
             input("\nEnter to continue")
             continue
         
@@ -173,31 +189,30 @@ def flow_merge_and_split():
             
         input("\nEnter to continue")    
 
-
-def flow_privacy():
+def flow_content_extraction():
     while True:
         clear()
-        print("\nPrivacy — pilih aksi\n")
-        print("1\tStrip Metadata  PDF")
-        print("2\tStrip EXIF      JPG")
-        print("3\tEnkripsi PDF    (password protect)")
-        print("4\tSanitize PDF    (strip JS/actions/embedded files)")
+        print("\nContent Extraction\n")
+        print("─" * 36)
+        print("1\tExtract Images from PDF file")
+        print("2\tExtract Tables to CSV from PDF file")
+        print("3\tExtract Links from PDF file")
+        print("4\tOCR")
         print("\n0\tBack")
 
         choice = input("\nInput [1-4/0] : ").strip()
 
-        if choice == "0":
-            return
-
         config = {
-            "1": ("PDF", [".pdf"],          pdf_strip_metadata),
-            "2": ("JPG", [".jpg", ".jpeg"], jpg_strip_exif),
-            "3": ("PDF", [".pdf"],          pdf_encrypt),
-            "4": ("PDF", [".pdf"],          pdf_sanitize),
+            "1": ("PDF",  [".pdf"],     extract_images_from_pdf),
+            "2": ("PDF",  [".pdf"],     extract_tables_from_pdf),
+            "3": ("PDF",  [".pdf"],     extract_links_from_pdf),
         }
 
         if choice not in config:
-            print("\n[!] Pilihan tidak valid.")
+            if choice == "4":
+                print("\n[!] This feature is still in development. Stay tuned!")
+            else:
+                print("\n[!] Invalid selection.")
             input("\nEnter to continue")
             continue
 
@@ -207,6 +222,43 @@ def flow_privacy():
         func(path)
         input("\nEnter to continue")
 
+def flow_privacy():
+    while True:
+        clear()
+        print("\nPrivacy \n")
+        print("─" * 36)
+        print("1\tStrip Metadata  PDF")
+        print("2\tStrip EXIF      JPG")
+        print("3\tEncrypt PDF    (password protect)")
+        print("4\tDecrypt PDF    (unlock PDF)")
+        print("5\tRedaction PDF")
+        print("6\tSanitize PDF    (strip JS/actions/embedded files)")
+        print("\n0\tBack")
+
+        choice = input("\nInput [1-6/0] : ").strip()
+
+        if choice == "0":
+            return
+
+        config = {
+            "1": ("PDF", [".pdf"],          pdf_strip_metadata),
+            "2": ("JPG", [".jpg", ".jpeg"], jpg_strip_exif),
+            "3": ("PDF", [".pdf"],          pdf_encrypt),
+            "4": ("PDF", [".pdf"],          pdf_unlock),
+            "5": ("PDF", [".pdf"],          pdf_redact),
+            "6": ("PDF", [".pdf"],          pdf_sanitize),
+        }
+
+        if choice not in config:
+            print("\n[!] Invalid selection.")
+            input("\nEnter to continue")
+            continue
+
+        label, exts, func = config[choice]
+        path = input_file(label, exts)
+        clear()
+        func(path)
+        input("\nEnter to continue")
 
 def main():
     while True:
@@ -216,9 +268,9 @@ def main():
         if   opsi == "Q": print("\nQuit"); break
         elif opsi == "1": flow_info_file()
         elif opsi == "2": flow_convert_file()
-        elif opsi == "3": flow_compres_file()
-        elif opsi == "4": flow_merge_and_split()
+        elif opsi == "3": flow_optimize_file()
+        elif opsi == "4": flow_organizer_pages()
         elif opsi == "5": flow_privacy()
         else:
-            print("\n[!] Pilihan tidak valid.")
+            print("\n[!] Invalid selection.")
             input("\nEnter to continue")

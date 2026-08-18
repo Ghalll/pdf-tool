@@ -1,4 +1,5 @@
 from pathlib import Path
+from .utils import print_size_result
 
 
 _ACTION_LABELS = {
@@ -205,7 +206,7 @@ def pdf_sanitize(path: Path):
             output = path.parent / f"{path.stem}_sanitized.pdf"
             pdf.save(str(output))
 
-        _print_size_result(path, output)
+        print_size_result(path, output)
         print(f"    Saved in : {output.resolve()}")
 
     except Exception as e:
@@ -213,11 +214,3 @@ def pdf_sanitize(path: Path):
             print("\n[ERROR] PDF terenkripsi — decrypt dulu sebelum sanitize.")
         else:
             print(f"\n[ERROR] Gagal sanitize: {e}")
-
-
-def _print_size_result(original: Path, output: Path):
-    before_kb = original.stat().st_size / 1024
-    after_kb = output.stat().st_size / 1024
-    print(f"\n[✓] Output  : {output.name}")
-    print(f"    Before  : {before_kb:.0f} KB")
-    print(f"    After   : {after_kb:.0f} KB")

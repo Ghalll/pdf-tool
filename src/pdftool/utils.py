@@ -8,6 +8,13 @@ from pathlib import Path
 def clear():
     os.system("cls" if os.name == "nt" else "clear")
 
+def print_size_result(original: Path, output: Path):
+    before_kb = original.stat().st_size / 1024
+    after_kb = output.stat().st_size / 1024
+    print(f"\n[✓] Output  : {output.name}")
+    print(f"    Before  : {before_kb:.0f} KB")
+    print(f"    After   : {after_kb:.0f} KB")
+
 def input_file(label: str, extensions: list[str]) -> Path:
     ext_display = "/".join(e.upper() for e in extensions)
     while True:

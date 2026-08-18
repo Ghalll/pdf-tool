@@ -1,49 +1,65 @@
 from pathlib import Path
 from .utils import has_javascript, get_attachments, count_images, get_fonts
 
-"""
-def pdf_info(path: Path):
-    from pypdf import PdfReader
+
+def jpg_analysis(path: Path):
+    from PIL import Image, ExifTags
 
     try:
 
-        reader = PdfReader(str(path))
-        meta   = reader.metadata
-        size   = path.stat().st_size / 1024
+        size_kb = path.stat().st_size / 1024
+        size_mb = size_kb / 1024
 
-        print(f"File    : {path.name}")
-        print(f"Pages   : {len(reader.pages)}")
-        print(f"Size    : {size:.1f} KB  ({size / 1024:.2f} MB)")
-        if meta:
-            if meta.title:  print(f"Title   : {meta.title}")
-            if meta.author: print(f"Author  : {meta.author}")
+        with Image.open (path) as img:
+            exif = img.getexif()
+    
+            print(f"File    : {path.name}")
+            print(f"Size    : {size_kb:.1f} KB  ({size_mb:.2f} MB)")
+            print(f"Dimensi : {img.width} x {img.height} px")
+            print(f"Format  : {img.format}")
+            print(f"Mode    : {img.mode}")
+
+            print("\nEXIF:")
+
+            if not exif:
+                print("  None")
+                return
+
+            make = exif.get(ExifTags.Base.Make)
+            model = exif.get(ExifTags.Base.Model)
+            orientation = exif.get(ExifTags.Base.Orientation)
+            exif_ifd = exif.get_ifd(ExifTags.IFD.Exif)
+            date_taken = exif_ifd.get(ExifTags.Base.DateTimeOriginal)
+            gps_ifd = exif.get_ifd(ExifTags.IFD.GPSInfo)
+
+            print(f"  Camera     : {make or '-'}")
+            print(f"  Model      : {model or '-'}")
+            print(f"  Date Taken : {date_taken or '-'}")
+            print(f"  Orientation: {orientation or '-'}")
+
+            if gps_ifd:
+                    gps_latitude = gps_ifd.get(ExifTags.GPS.GPSLatitude)
+                    gps_latitude_ref = gps_ifd.get(ExifTags.GPS.GPSLatitudeRef)
+
+                    gps_longitude = gps_ifd.get(ExifTags.GPS.GPSLongitude)
+                    gps_longitude_ref = gps_ifd.get(ExifTags.GPS.GPSLongitudeRef)
+
+                    if (
+                        gps_latitude is not None
+                        and gps_latitude_ref is not None
+                        and gps_longitude is not None
+                        and gps_longitude_ref is not None
+                    ):
+                        print("  GPS        : Present")
+                        print(f"    Latitude : {gps_latitude} {gps_latitude_ref}")
+                        print(f"    Longitude: {gps_longitude} {gps_longitude_ref}")
+                    else:
+                        print("  GPS        : Present, coordinates unavailable")
+            else:
+                print("  GPS        : None")
 
     except Exception as e:
-        print(f"\n[ERROR] Gagal baca info PDF: {e}")
-"""
-
-def jpg_info(path: Path):
-    from PIL import Image
-
-    try:
-
-        size = path.stat().st_size / 1024
-        img  = Image.open(path)
-    
-        print(f"File    : {path.name}")
-        print(f"Size    : {size:.1f} KB  ({size / 1024:.2f} MB)")
-        print(f"Dimensi : {img.width} x {img.height} px")
-        print(f"Format  : {img.format}")
-        print(f"Mode    : {img.mode}")
-    
-        exif = img.getexif()
-        if exif:
-            print(f"EXIF    : {len(exif)} tag found")
-    
-        img.close()
-
-    except Exception as e:
-        print(f"\n [ERROR] Gagal baca indo JPG: {e}")
+        print(f"\n [ERROR] Gagal baca info JPG: {e}")
 
 def doc_info(path: Path, origin: Path | None = None):
     from docx import Document

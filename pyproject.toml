@@ -11,6 +11,10 @@ dependencies = [
     "python-docx",
     "pdf2docx",
     "docxcompose",
+    "pymupdf",
+    "pymupdf4llm",
+    "mammoth",
+    "pdfplumber",
 ]
 
 [project.scripts]

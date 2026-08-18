@@ -1,9 +1,9 @@
 import getpass
 from pathlib import Path
+from .utils import print_size_result
 
 
 # ─── PDF Metadata ────────────────────────────────────────────────────────────
-
 _PDF_DOCINFO_FIELDS = {
     "/Title":        "Title",
     "/Author":       "Author",
@@ -46,12 +46,9 @@ def pdf_strip_metadata(path: Path):
                 print("\n[!] Dibatalkan.")
                 return
 
-            # Hapus docinfo (metadata tradisional PDF)
-            # pikepdf docinfo tidak support .clear() — delete per key
             for key in list(pdf.docinfo.keys()):
                 del pdf.docinfo[key]
 
-            # Hapus XMP metadata (metadata modern PDF)
             with pdf.open_metadata() as xmp:
                 for key in list(xmp.keys()):
                     del xmp[key]
@@ -59,7 +56,7 @@ def pdf_strip_metadata(path: Path):
             output = path.parent / f"{path.stem}_clean.pdf"
             pdf.save(str(output))
 
-        _print_size_result(path, output)
+        print_size_result(path, output)
         print(f"    Saved in : {output.resolve()}")
 
     except Exception as e:
@@ -67,8 +64,6 @@ def pdf_strip_metadata(path: Path):
 
 
 # ─── JPG EXIF ────────────────────────────────────────────────────────────────
-
-# Tag EXIF yang mengandung info sensitif / identifikasi
 _SENSITIVE_EXIF_TAGS = {
     271:   "Make",               # Brand kamera/HP
     272:   "Model",              # Model kamera/HP
@@ -98,7 +93,6 @@ def jpg_strip_exif(path: Path):
             img.close()
             return
 
-        # Tampilkan tag sensitif
         printed = False
         for tag_id, val in exif.items():
             if tag_id in _SENSITIVE_EXIF_TAGS:
@@ -107,7 +101,6 @@ def jpg_strip_exif(path: Path):
                 printed = True
 
         if not printed:
-            # Ada EXIF tapi bukan yang sensitif — tetap kasih tau
             print(f"  {len(exif)} tag ditemukan (non-sensitive metadata)")
 
         print()
@@ -119,17 +112,15 @@ def jpg_strip_exif(path: Path):
 
         output = path.parent / f"{path.stem}_clean.jpg"
 
-        # Save tanpa pass kwarg `exif` → Pillow tidak include EXIF
         clean = img.convert("RGB")
         clean.save(str(output), "JPEG", quality=95, optimize=True)
         img.close()
 
-        # Verifikasi — pastiin EXIF beneran hilang
         check      = Image.open(output)
         exif_after = check.getexif()
         check.close()
 
-        _print_size_result(path, output)
+        print_size_result(path, output)
         if exif_after:
             print(f"    [!] Warning: masih ada {len(exif_after)} tag tersisa (non-critical).")
         else:
@@ -141,7 +132,6 @@ def jpg_strip_exif(path: Path):
 
 
 # ─── PDF Encrypt ─────────────────────────────────────────────────────────────
-
 def pdf_encrypt(path: Path):
     import pikepdf
 
@@ -183,11 +173,262 @@ def pdf_encrypt(path: Path):
         print(f"\n[ERROR] Gagal enkripsi: {e}")
 
 
-# ─── Helpers ─────────────────────────────────────────────────────────────────
+# ─── PDF Unlock ─────────────────────────────────────────────────────────────
+def pdf_unlock(path:Path):
+    import pikepdf
+    from pypdf import PdfReader
 
-def _print_size_result(original: Path, output: Path):
-    before_kb = original.stat().st_size / 1024
-    after_kb  = output.stat().st_size / 1024
-    print(f"\n[✓] Output  : {output.name}")
-    print(f"    Before  : {before_kb:.0f} KB")
-    print(f"    After   : {after_kb:.0f} KB")
+    try:
+        reader = PdfReader(str(path))
+        is_encrypted = reader.is_encrypted
+        requires_password = False
+        
+        if is_encrypted:
+            if reader.decrypt("") == 0:
+                requires_password = True
+    except Exception:
+        requires_password = True
+        is_encrypted = True
+
+    print("\nUnlock PDF")
+    print("─" * 36)
+    print(f"File : {path.name}\n")
+
+    print("Security status:")
+    if requires_password:
+        print("  Password             : YES")
+        print("  Copy / Select        : DENIED")
+        print("  Print                : DENIED")
+        print("  Modify               : DENIED")
+    elif is_encrypted:
+        print("  Password             : NO (Owner Restricted)")
+        print("  Copy / Select        : DENIED")
+        print("  Print                : DENIED")
+        print("  Modify               : DENIED")
+    else:
+        print("  Password             : NO")
+        print("  Copy / Select        : ALLOWED")
+        print("  Print                : ALLOWED")
+        print("  Modify               : ALLOWED")
+        
+    if not is_encrypted:
+        print("\n[i] File ini tidak terenkripsi / tidak memiliki restriction.")
+        print("    Tidak ada yang perlu di-unlock.")
+        return
+
+    print("\nWhat would you like to remove?")
+    print("1   Password")
+    print("2   Restrictions")
+    print("3   Password + Restrictions")
+    print("0   Back")
+
+    choice = input("\nInput [1-3/0] : ").strip()
+
+    if choice == "0":
+        return
+        
+    if choice not in ["1", "2", "3"]:
+        print("\n[!] Pilihan tidak valid.")
+        return
+
+    output = path.parent / f"{path.stem}_unlocked.pdf"
+
+    # ---------------------------------------------------------
+    # MODE 1 : Remove Password
+    # ---------------------------------------------------------
+    if choice == "1":
+        print("\nUnlock PDF — Remove Password")
+        print("─" * 36)
+        print(f"File : {path.name}\n")
+        
+        if not requires_password:
+            print("[i] File ini tidak memerlukan password untuk dibuka.")
+            print("    Silakan pilih menu Remove Restrictions (Mode 2).")
+            return
+            
+        print("This PDF is password protected.")
+        print("Enter password to unlock:\n")
+        password = getpass.getpass("Password : ")
+        
+        print("\n[*] Unlocking PDF...")
+        try:
+            with pikepdf.open(str(path), password=password) as pdf:
+                print("[✓] Password verified.\n")
+                pdf.save(str(output))
+                
+            print("[✓] PDF unlocked successfully\n")
+            print(f"Output : {output.name}")
+            size_mb = output.stat().st_size / (1024 * 1024)
+            print(f"Size   : {size_mb:.2f} MB\n")
+            print("The password is no longer required to open this file.")
+            
+        except pikepdf.PasswordError:
+            print("\n[!] Incorrect password.")
+            print("    PDF was not modified.")
+        except Exception as e:
+            print(f"\n[ERROR] Gagal unlock: {e}")
+
+    # ---------------------------------------------------------
+    # MODE 2 : Remove Restrictions
+    # ---------------------------------------------------------
+    elif choice == "2":
+        print("\nUnlock PDF — Remove Restrictions")
+        print("─" * 36)
+        print(f"File : {path.name}\n")
+        
+        if requires_password:
+            print("[!] File ini terkunci oleh User Password.")
+            print("    Gunakan Mode 1 atau Mode 3 dan masukkan password terlebih dahulu.")
+            return
+            
+        print("Current restrictions:")
+        print("  Copy / Select text   : DENIED")
+        print("  Print                : DENIED")
+        print("  Modify               : DENIED")
+        print("  Annotations          : DENIED\n")
+        
+        print("[*] Removing PDF restrictions...")
+        try:
+            with pikepdf.open(str(path)) as pdf:
+                pdf.save(str(output))
+                
+            print("[✓] Restrictions removed.\n")
+            print(f"Output : {output.name}\n")
+            print("Permissions:")
+            print("  Copy / Select text   : ALLOWED")
+            print("  Print                : ALLOWED")
+            print("  Modify               : ALLOWED")
+            print("  Annotations          : ALLOWED")
+            
+        except Exception as e:
+            print(f"\n[ERROR] Gagal menghapus restrictions: {e}")
+    
+    # ---------------------------------------------------------
+    # MODE 3 : Remove Password + Restrictions
+    # ---------------------------------------------------------
+    elif choice == "3":
+        print("\nUnlock PDF — Remove Password + Restrictions")
+        print("─" * 36)
+        print(f"File : {path.name}\n")
+        
+        password = ""
+        if requires_password:
+            print("This PDF is password protected.")
+            print("Enter password to unlock:\n")
+            password = getpass.getpass("Password : ")
+            
+        print("\n[*] Unlocking PDF...")
+        try:
+            if requires_password:
+                with pikepdf.open(str(path), password=password) as pdf:
+                    print("    ✓ Password verified and removed")
+                    pdf.save(str(output))
+            else:
+                with pikepdf.open(str(path)) as pdf:
+                    pdf.save(str(output))
+                    
+            print("    ✓ Restrictions removed\n")
+            print("[✓] PDF unlocked successfully\n")
+            print(f"Output : {output.name}")
+            size_mb = output.stat().st_size / (1024 * 1024)
+            print(f"Size   : {size_mb:.2f} MB")
+            
+        except pikepdf.PasswordError:
+            print("\n[!] Incorrect password.")
+            print("    PDF was not modified.")
+        except Exception as e:
+            print(f"\n[ERROR] Gagal unlock: {e}")
+    
+
+# ─── PDF Redact ──────────────────────────────────────────────────────────────
+def pdf_redact(path: Path):
+    import pymupdf
+
+    # --- UI: Header ---
+    print("\nRedact PDF")
+    print("─" * 36)
+    print(f"\nFile : {path.name}\n")
+
+    doc = pymupdf.open(str(path))
+
+    # Cek enkripsi
+    if doc.needs_pass:
+        print("[!] PDF terenkripsi — unlock dulu sebelum di-redact.")
+        doc.close()
+        return
+
+    # --- UI: Input ---
+    print("Enter text to redact (pisahkan dengan koma jika lebih dari satu):")
+    raw = input("> ").strip()
+    
+    if not raw:
+        print("\n[!] Text cannot be empty.")
+        doc.close()
+        return
+
+    print("\n[*] Searching document...")
+
+    terms = [t.strip() for t in raw.split(",") if t.strip()]
+    findings = {}
+    
+    # Mencari kata di setiap halaman
+    for term in terms:
+        matches = [(pi, rect) for pi, page in enumerate(doc) for rect in page.search_for(term)]
+        findings[term] = matches
+
+    total_matches = sum(len(m) for m in findings.values())
+
+    # --- UI: Tidak Ditemukan ---
+    if total_matches == 0:
+        print("\n[!] No matching text found.")
+        print("    PDF was not modified.")
+        print("    (Jika PDF hasil scan, teks tidak bisa dibaca tanpa OCR)")
+        doc.close()
+        return
+
+    # --- UI: Ditemukan ---
+    print(f"[✓] Found {total_matches} matches\n")
+
+    page_match_counts = {}
+    for matches in findings.values():
+        for pi, _ in matches:
+            page_match_counts[pi] = page_match_counts.get(pi, 0) + 1
+
+    for pi in sorted(page_match_counts.keys()):
+        count = page_match_counts[pi]
+        word = "match" if count == 1 else "matches"
+        print(f"  Page {pi + 1:<3} • {count} {word}")
+
+    print("\n[!] WARNING")
+    print("    The matched text will be permanently removed.")
+    print("    This operation cannot be undone.\n")
+
+    # Konfirmasi eksekusi
+    confirm = input("Apply redaction? [y/N]: ").strip().lower()
+    if confirm not in ("y", "yes"):
+        print("\n[i] Operation cancelled. PDF was not modified.")
+        doc.close()
+        return
+
+    print("\n[*] Applying redactions...")
+
+    pages_touched = set()
+    for matches in findings.values():
+        for pi, rect in matches:
+            doc[pi].add_redact_annot(rect, fill=(0, 0, 0))
+            pages_touched.add(pi)
+
+    # Eksekusi pemusnahan teks di memori
+    for pi in pages_touched:
+        doc[pi].apply_redactions()
+
+    # Menyimpan file
+    output = path.parent / f"{path.stem}_redacted.pdf"
+    doc.save(str(output), garbage=3, deflate=True) 
+    doc.close()
+
+    # --- UI: Sukses ---
+    print(f"[✓] {total_matches} occurrences permanently redacted.\n")
+    print(f"Output : {output.name}")
+    size_kb = output.stat().st_size / 1024
+    print(f"Size   : {size_kb:.1f} KB")
