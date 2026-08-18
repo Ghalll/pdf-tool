@@ -263,14 +263,15 @@ def flow_privacy():
 def main():
     while True:
         welcome()
-        opsi = input("\nInput [1-5/Q] : ").strip().upper()
+        opsi = input("\nInput [1-6/Q] : ").strip().upper()
 
         if   opsi == "Q": print("\nQuit"); break
         elif opsi == "1": flow_info_file()
         elif opsi == "2": flow_convert_file()
         elif opsi == "3": flow_optimize_file()
         elif opsi == "4": flow_organizer_pages()
-        elif opsi == "5": flow_privacy()
+        elif opsi == "5": flow_content_extraction()
+        elif opsi == "6": flow_privacy()
         else:
             print("\n[!] Invalid selection.")
             input("\nEnter to continue")
