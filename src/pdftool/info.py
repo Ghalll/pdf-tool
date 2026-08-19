@@ -51,8 +51,27 @@ def jpg_analysis(path: Path):
                         and gps_longitude_ref is not None
                     ):
                         print("  GPS        : Present")
-                        print(f"    Latitude : {gps_latitude} {gps_latitude_ref}")
-                        print(f"    Longitude: {gps_longitude} {gps_longitude_ref}")
+
+                        def format_gps(coords, ref):
+                            try:
+                                d = float(coords[0])
+                                m = float(coords[1])
+                                s = float(coords[2])
+
+                                dec = d + (m / 60.0) + (s / 3600.0)
+
+                                ref_str = str(ref).strip().upper()
+                                if ref_str in ['S', 'W']:
+                                    dec = -dec
+                                return f"{int(d)}° {int(m)}' {s:.3f}\" {ref_str} ({dec:.6f})"
+                            except Exception:
+                                return f"{coords} {ref}"
+
+                        lat_str = format_gps(gps_latitude, gps_latitude_ref)
+                        lon_str = format_gps(gps_longitude, gps_longitude_ref)
+
+                        print(f"    Latitude : {lat_str}")
+                        print(f"    Longitude: {lon_str}")
                     else:
                         print("  GPS        : Present, coordinates unavailable")
             else:
