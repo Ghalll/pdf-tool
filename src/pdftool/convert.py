@@ -19,7 +19,7 @@ def pdf_to_jpg(path: Path, dpi: int = 150, quality: int = 85, output_dir: Path =
             img.convert("RGB").save(str(out), "JPEG", quality=quality, optimize=True)
             print(f"[+] Page {i + 1:>3} → {out.name}  ({out.stat().st_size / 1024:.0f} KB)")
 
-        print(f"\n[✓] {len(images)} file saved in: {output_dir.resolve()}")
+        print(f"\n[✓] {len(images)} files saved in: {output_dir.resolve()}")
 
     except Exception as e:
         print(f"\n[ERROR] Failed to convert: {e}")
@@ -83,7 +83,7 @@ def pdf_to_text(path: Path, output_path: Path = None):
     except Exception as e:
         print(f"\n[ERROR] Failed to convert: {e}")
 
-def pdf_to_markdown(path: Path, output_dir: Path = None):
+def pdf_to_markdown(path: Path, output_path: Path = None):
     import pymupdf4llm
     
     if output_path is None:
@@ -103,7 +103,7 @@ def pdf_to_markdown(path: Path, output_dir: Path = None):
     except Exception as e:
         print(f"\n[ERROR] Failed to convert: {e}")
 
-def pdf_to_html(path: Path, output_dir: Path = None):
+def pdf_to_html(path: Path, output_path: Path = None):
     from pdf2docx import Converter
     import mammoth
 
