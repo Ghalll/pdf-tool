@@ -233,10 +233,10 @@ def flow_privacy():
         print("2\tStrip EXIF      JPG")
         print("3\tEncrypt PDF    (lock PDF)")
         print("4\tDecrypt PDF    (unlock PDF)")
-        print("6\tSanitize PDF   (strip JS/actions/embedded files)")
-        print("5\tRedaction PDF")
-        print("6\tPII Scanner")
-        print("7\tWatermark")
+        print("5\tSanitize PDF   (strip JS/actions/embedded files)")
+        print("6\tRedaction PDF")
+        print("7\tPII Scanner")
+        print("8\tWatermark")
         print("\n0\tBack")
 
         choice = input("\nInput [1-6/0] : ").strip()
@@ -254,7 +254,7 @@ def flow_privacy():
         }
 
         if choice not in config:
-            if choice in ["5","6","7"]:
+            if choice in ["7","8"]:
                 print("\n[!] This feature is still in development. Stay tuned!")
             else:
                 print("\n[!] Invalid selection.")
