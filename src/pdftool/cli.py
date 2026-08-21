@@ -27,7 +27,7 @@ def welcome():
 def flow_info_file():
     while True:
         clear()
-        print("\nSelect a file type\n")
+        print("\nSelect a file type")
         print("─" * 36)
         print("1\tPDF")
         print("2\tJPG")
@@ -64,7 +64,7 @@ def flow_info_file():
 def flow_convert_file():
     while True:
         clear()
-        print("\nConvert to what format?\n")
+        print("\nConvert to what format?")
         print("─" * 36)
         print("1\tPDF  → JPG")
         print("2\tPDF  → DOCX")
@@ -108,7 +108,7 @@ def flow_convert_file():
 def flow_optimize_file():
     while True:
         clear()
-        print("\nOptimize file\n")
+        print("\nOptimize file")
         print("─" * 36)
         print("1\tCompress PDF")
         print("2\tCompress JPG")
@@ -150,7 +150,7 @@ def flow_optimize_file():
 def flow_organizer_pages():
     while True:
         clear()
-        print("\nPages Organizer\n")
+        print("\nPages Organizer")
         print("─" * 36)
         print("1\tMerge PDF")
         print("2\tSplit PDF")
@@ -191,7 +191,7 @@ def flow_organizer_pages():
 def flow_content_extraction():
     while True:
         clear()
-        print("\nContent Extraction\n")
+        print("\nContent Extraction")
         print("─" * 36)
         print("1\tExtract Images from PDF file")
         print("2\tExtract Tables to CSV from PDF file")
@@ -227,7 +227,7 @@ def flow_content_extraction():
 def flow_privacy():
     while True:
         clear()
-        print("\nPrivacy \n")
+        print("\nPrivacy")
         print("─" * 36)
         print("1\tStrip Metadata  PDF")
         print("2\tStrip EXIF      JPG")
