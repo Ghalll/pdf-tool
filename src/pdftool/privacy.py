@@ -133,22 +133,43 @@ def jpg_strip_exif(path: Path):
 # ─── PDF Encrypt ─────────────────────────────────────────────────────────────
 def pdf_encrypt(path: Path):
     import pikepdf
-    from pypdf import PdfReader
+
+    is_encrypted = False
+    requires_password = False
+    is_restriction = False
 
     try:
-        reader = PdfReader(str(path))
-        is_encrypted = reader.is_encrypted
-        requires_password = False
-        is_restriction = False
-
-        if is_encrypted:
-            if reader.decrypt("") == 0:
+        from pypdf import PdfReader
+        try:
+            reader = PdfReader(str(path))
+            is_encrypted = getattr(reader, "is_encrypted", false)
+            if is_encrypted:
+                try:
+                    dec = reader.decrypt("")
+                    if dec == 0:
+                        requires_password = True
+                    else:
+                        is_encrypted = True
+                except Exception:
+                    requires_password = True
+        except Exception:
+            try:
+                with pikepdf.open(str(path)):
+                    is_encrypted = False
+            except pikepdf.PasswordError:
+                is_encrypted = True
                 requires_password = True
-            else:
-                is_restriction = True
+            except Exception:
+                is_encrypted = False
     except Exception:
-        requires_password = True
-        is_encrypted = True
+        try:
+            with pikepdf.open(str(path)):
+                is_encrypted = False
+        except pikepdf.PasswordError:
+            is_encrypted = True
+            requires_password = True
+        except Exception:
+            is_encrypted = False
 
     print(f"\n[*] Lock PDF")
     print("    Algoritma : AES-256  (PDF Revision 6)")
