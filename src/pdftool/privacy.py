@@ -142,7 +142,7 @@ def pdf_encrypt(path: Path):
         from pypdf import PdfReader
         try:
             reader = PdfReader(str(path))
-            is_encrypted = getattr(reader, "is_encrypted", false)
+            is_encrypted = getattr(reader, "is_encrypted", False)
             if is_encrypted:
                 try:
                     dec = reader.decrypt("")
