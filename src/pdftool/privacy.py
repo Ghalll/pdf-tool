@@ -133,11 +133,11 @@ def jpg_strip_exif(path: Path):
 # ─── PDF Encrypt ─────────────────────────────────────────────────────────────
 def pdf_encrypt(path: Path):
     import pikepdf
-
+ 
     is_encrypted = False
     requires_password = False
     is_restriction = False
-
+ 
     try:
         from pypdf import PdfReader
         try:
@@ -170,12 +170,12 @@ def pdf_encrypt(path: Path):
             requires_password = True
         except Exception:
             is_encrypted = False
-
+ 
     print(f"\n[*] Lock PDF")
     print("    Algoritma : AES-256  (PDF Revision 6)")
     print("─" * 45)
     print(f"File : {path.name}\n")
-
+ 
     print("Security status:")
     if requires_password:
         print("  [i] This file is already password protected")
@@ -187,38 +187,46 @@ def pdf_encrypt(path: Path):
         return
     else:
         print("  [i] Unsecured (Ready to lock)")
-
+ 
     print("\nSelect file security")
     print("1    Password (Open requires password)")
     print("2    Restriction (Prevent copy, print, modify)")
     print("3    Password + Restriction")
     print("0    Back")
-
+ 
     choice = input("\nInput [1-3/0] : ").strip()
-
+ 
     if choice == "0":
         return
-
+ 
     if choice not in ["1", "2", "3"]:
         print("\n[!] Invalid selection.")
         return
-
+ 
     output = path.parent / f"{path.stem}_encrypted.pdf"
-
-    perms = pikepdf.Permissions(extract=False, modify=False, print=False)
-
+ 
+    perms = pikepdf.Permissions(
+        extract=False,
+        modify_annotation=False,
+        modify_assembly=False,
+        modify_form=False,
+        modify_other=False,
+        print_lowres=False,
+        print_highres=False,
+    )
+ 
     if choice == "1":
         try:
             password = getpass.getpass("Password    : ")
             if not password:
                 print("\n[!] The password cannot be blank.")
                 return
-
+ 
             confirm = getpass.getpass("Confirmation  : ")
             if password != confirm:
                 print("\n[!]    The password does not match.")
                 return
-
+ 
             print("\n[*] Encrypting PDF...")
             with pikepdf.open(str(path)) as pdf:
                 pdf.save(
@@ -232,7 +240,7 @@ def pdf_encrypt(path: Path):
         except Exception as e:
             print(f"\n[ERROR] Failed to encryption: {e}")
             return
-
+ 
     elif choice == "2":
         try:
             print("\n[i] The file will open normally, but Copy, Print, and Modify will be disabled.")
@@ -240,12 +248,12 @@ def pdf_encrypt(path: Path):
             if not owner_pass:
                 print("\n[!] The owner password cannot be blank.")
                 return
-
+ 
             confirm = getpass.getpass("Confirmation             : ")
             if owner_pass != confirm:
                 print("\n[!] The password does not match.")
                 return
-
+ 
             print("\n[*] Applying Restrictions...")
             with pikepdf.open(str(path)) as pdf:
                 pdf.save(
@@ -267,16 +275,16 @@ def pdf_encrypt(path: Path):
             if not user_pass:
                 print("\n[!] User password cannot be blank.")
                 return
-
+ 
             owner_pass = getpass.getpass("Owner Password (to lock) : ")
             if not owner_pass:
                 print("\n[!] Owner password cannot be blank.")
                 return
-
+ 
             if user_pass == owner_pass:
                 print("\n[!] User and Owner passwords MUST be different to enforce restrictions.")
                 return
-
+ 
             print("\n[*] Applying Password and Restrictions...")
             with pikepdf.open(str(path)) as pdf:
                 pdf.save(
@@ -291,7 +299,7 @@ def pdf_encrypt(path: Path):
         except Exception as e:
             print(f"\n[ERROR] Failed to encrypt: {e}")
             return
-
+ 
     size_kb = output.stat().st_size / 1024
     print(f"\n[✓] PDF Secured: {output.name}  ({size_kb:.0f} KB)")
     print(f"    Saved in   : {output.resolve()}")
