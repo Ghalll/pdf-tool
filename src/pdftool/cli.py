@@ -4,7 +4,7 @@ from .utils import clear, input_file, input_files, ensure_docx
 from .info import pdf_analysis, jpg_analysis, doc_info
 from .convert import pdf_to_jpg, pdf_to_doc, pdf_to_text, pdf_to_markdown, pdf_to_html, jpg_to_pdf, jpg_to_png, png_to_jpg, doc_to_pdf
 from .compress import pdf_compres, jpg_compres, doc_compres
-from .merge_split import merge_pdf, split_pdf, merge_docx, split_docx
+from .pages_organizer import merge_pdf, split_pdf, merge_docx, split_docx, extract_pages, delete_pages, rotate_pages
 from .privacy import pdf_strip_metadata, jpg_strip_exif, pdf_encrypt, pdf_unlock, pdf_redact
 from .sanitize import pdf_sanitize
 from .repair import pdf_repair
@@ -147,7 +147,7 @@ def flow_optimize_file():
             func(path)
         input("\nEnter to continue")
 
-def flow_organizer_pages():
+def flow_pages_organizer():
     while True:
         clear()
         print("\nPages Organizer")
@@ -156,9 +156,12 @@ def flow_organizer_pages():
         print("2\tSplit PDF")
         print("3\tMerge DOCX")
         print("4\tSplit DOCX")
+        print("5\tExtract Pages")
+        print("6\tDelete Pages")
+        print("7\tRotate Pages")
         print("\n0\tBack")
 
-        choice = input("\nInput [1-4/0] : ").strip()
+        choice = input("\nInput [1-7/0] : ").strip()
 
         if choice == "0":
             return
@@ -168,6 +171,9 @@ def flow_organizer_pages():
             "2": ("PDF",  [".pdf"],          False, split_pdf),
             "3": ("DOCX", [".docx"],         True,  merge_docx),
             "4": ("DOCX", [".docx"],         False, split_docx),
+            "5": ("PDF",  [".pdf"],          False, extract_pages),
+            "6": ("PDF",  [".pdf"],          False, delete_pages),
+            "7": ("PDF",  [".pdf"],          False, rotate_pages),
         }
 
         if choice not in config:
@@ -276,7 +282,7 @@ def main():
         elif opsi == "1": flow_info_file()
         elif opsi == "2": flow_convert_file()
         elif opsi == "3": flow_optimize_file()
-        elif opsi == "4": flow_organizer_pages()
+        elif opsi == "4": flow_pages_organizer()
         elif opsi == "5": flow_content_extraction()
         elif opsi == "6": flow_privacy()
         else:
